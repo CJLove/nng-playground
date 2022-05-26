@@ -19,7 +19,7 @@ int main(int argc, char**argv)
 {
     int logLevel = spdlog::level::trace;
     std::string topic = "topic1";
-    std::vector<std::string> endpoints = { };
+    std::string endpoint = "tcp://localhost:6000";
     int c;
     while ((c = getopt(argc, argv, "l:t:s:?")) != EOF) {
         switch (c) {
@@ -30,7 +30,7 @@ int main(int argc, char**argv)
                 topic = optarg;
                 break;
             case 's':
-                endpoints.push_back(std::string(optarg));
+                endpoint = optarg;
                 break;
 
             case '?':
@@ -46,9 +46,7 @@ int main(int argc, char**argv)
     // Set the log level for filtering
     spdlog::set_level(static_cast<spdlog::level::level_enum>(logLevel));
 
-    for (const auto &endpoint: endpoints) {
-        logger->info("PUB Endpoint {}",endpoint);
-    }
+    logger->info("PUB Endpoint {}",endpoint);
     logger->info("Using Topic {}", topic);
 
     nng::socket sock = nng::sub::open();
@@ -56,9 +54,7 @@ int main(int argc, char**argv)
     nng::set_opt_reconnect_time_max(sock, 10);
 
     try {
-        for (const auto &endpoint: endpoints) {
-            sock.dial(endpoint.c_str(), nng::flag::nonblock);
-        }
+        sock.dial(endpoint.c_str(), nng::flag::nonblock);
     }
     catch (std::exception &e) {
         logger->error("Caught {}", e.what());

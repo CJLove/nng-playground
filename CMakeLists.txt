@@ -34,6 +34,5 @@ find_package(spdlog CONFIG REQUIRED)
 # Threads
 find_package(Threads)
 
-#add_subdirectory(pub-sub-proxy)
+add_subdirectory(pub-sub-proxy)
 add_subdirectory(pub-sub)
-#add_subdirectory(pub-sub-stack)

@@ -1,6 +1,6 @@
 
 #include <nngpp/nngpp.h>
-#include <nngpp/protocol/pub0.h>
+#include <nngpp/protocol/sub0.h>
 #include <string>
 #include <spdlog/sinks/stdout_sinks.h>
 #include <spdlog/spdlog.h>
@@ -11,7 +11,7 @@ using namespace std;
 
 void usage() {
     std::cerr << "Usage\n"
-              << "nng_pub [-l <logLevel>][-t <Topic>][-p <endpoint>][-m <msg>]\n";
+              << "nng_subscriber [-l <logLevel>][-t <Topic>][-s <endpoint>]\n";
 }
 
 
@@ -19,10 +19,9 @@ int main(int argc, char**argv)
 {
     int logLevel = spdlog::level::trace;
     std::string topic = "topic1";
-    std::string endpoint = "tcp://localhost:555";
-    std::string message = "Hello world!";
+    std::vector<std::string> endpoints = { };
     int c;
-    while ((c = getopt(argc, argv, "l:t:p:m:?")) != EOF) {
+    while ((c = getopt(argc, argv, "l:t:s:?")) != EOF) {
         switch (c) {
             case 'l':
                 logLevel = std::stoi(optarg);
@@ -30,12 +29,10 @@ int main(int argc, char**argv)
             case 't':
                 topic = optarg;
                 break;
-            case 'p':
-                endpoint = optarg;
+            case 's':
+                endpoints.push_back(std::string(optarg));
                 break;
-            case 'm':
-                message = std::string(optarg);
-                break;
+
             case '?':
             default:
                 usage();
@@ -49,34 +46,35 @@ int main(int argc, char**argv)
     // Set the log level for filtering
     spdlog::set_level(static_cast<spdlog::level::level_enum>(logLevel));
 
-    logger->info("PUB Endpoint {}",endpoint);
+    for (const auto &endpoint: endpoints) {
+        logger->info("PUB Endpoint {}",endpoint);
+    }
     logger->info("Using Topic {}", topic);
 
-    nng::socket sock = nng::pub::open();
+    nng::socket sock = nng::sub::open();
+    nng::set_opt_reconnect_time_min(sock, 10);
+    nng::set_opt_reconnect_time_max(sock, 10);
+
     try {
-    sock.listen(endpoint.c_str());
+        for (const auto &endpoint: endpoints) {
+            sock.dial(endpoint.c_str(), nng::flag::nonblock);
+        }
     }
     catch (std::exception &e) {
         logger->error("Caught {}", e.what());
         exit(1);
     }
+    sock.set_opt(NNG_OPT_SUB_SUBSCRIBE, nng::view(topic.data(),topic.size()));
+
+    const std::string sep ="|";
 
     while (true) {
-        const std::string sep = "|";
-        nng::msg msg = nng::make_msg(0);
+        auto msg = sock.recv_msg();
+        std::string_view view((char*)msg.body().data(), msg.body().size());
+        auto pos = view.find(sep);
+        if (pos != std::string::npos) {
+            logger->info("Received topic '{}' message {}",view.substr(0,pos),view.substr(pos+1));
+        }
 
-        msg.body().append(nng::view(topic.data(),topic.size()));
-        msg.body().append(nng::view(sep.data(),1));
-        msg.body().append(nng::view(message.data(),message.size()));
-
-        logger->info("Msg hdr {} body {}",msg.header().size(), msg.body().size());
-        char* p = reinterpret_cast<char*>(msg.body().data());
-
-        logger->info("Sent {}",(char*)msg.body().data());
-
-        sock.send(std::move(msg),0);
-
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
 }
