@@ -52,9 +52,12 @@ int main(int argc, char**argv)
     logger->info("Using Topic {}", topic);
 
     nng::socket sock = nng::sub::open();
+    nng::set_opt_reconnect_time_min(sock, 10);
+    nng::set_opt_reconnect_time_max(sock, 10);
+
     try {
         for (const auto &endpoint: endpoints) {
-            sock.dial(endpoint.c_str());
+            sock.dial(endpoint.c_str(), nng::flag::nonblock);
         }
     }
     catch (std::exception &e) {
@@ -63,10 +66,15 @@ int main(int argc, char**argv)
     }
     sock.set_opt(NNG_OPT_SUB_SUBSCRIBE, nng::view(topic.data(),topic.size()));
 
+    const std::string sep ="|";
+
     while (true) {
         auto msg = sock.recv_msg();
-
-        logger->info("Received message {}",(char*)msg.body().data());
+        std::string_view view((char*)msg.body().data(), msg.body().size());
+        auto pos = view.find(sep);
+        if (pos != std::string::npos) {
+            logger->info("Received topic '{}' message {}",view.substr(0,pos),view.substr(pos+1));
+        }
 
     }
 }

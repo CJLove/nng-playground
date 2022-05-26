@@ -62,11 +62,15 @@ int main(int argc, char**argv)
     }
 
     while (true) {
+        const std::string sep = "|";
         nng::msg msg = nng::make_msg(0);
 
         msg.body().append(nng::view(topic.data(),topic.size()));
-        //msg.body().append("|");
+        msg.body().append(nng::view(sep.data(),1));
         msg.body().append(nng::view(message.data(),message.size()));
+
+        logger->info("Msg hdr {} body {}",msg.header().size(), msg.body().size());
+        char* p = reinterpret_cast<char*>(msg.body().data());
 
         logger->info("Sent {}",(char*)msg.body().data());
 
