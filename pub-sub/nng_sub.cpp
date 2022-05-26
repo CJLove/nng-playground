@@ -39,7 +39,7 @@ int main(int argc, char**argv)
                 exit(1);
         }
     }
-    auto logger = spdlog::stdout_logger_mt("zmq");
+    auto logger = spdlog::stdout_logger_mt("nng");
     // Log format:
     // 2018-10-08 21:08:31.633|020288|I|Thread Worker thread 3 doing something
     logger->set_pattern("%Y-%m-%d %H:%M:%S.%e|%t|%L|%v");
