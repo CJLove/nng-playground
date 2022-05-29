@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.17)
 
-project(zmq-playground)
+project(nng-playground)
 
 #---------------------------------------------------------------------------------------
 # compiler config
@@ -36,3 +36,7 @@ find_package(Threads)
 
 add_subdirectory(pub-sub-proxy)
 add_subdirectory(pub-sub)
+
+add_subdirectory(common)
+
+add_subdirectory(pub-sub-stack)

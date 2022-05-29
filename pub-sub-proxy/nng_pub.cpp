@@ -72,9 +72,8 @@ int main(int argc, char**argv)
         msg.body().append(nng::view(message.data(),message.size()));
 
         logger->info("Msg hdr {} body {}",msg.header().size(), msg.body().size());
-        char* p = reinterpret_cast<char*>(msg.body().data());
 
-        logger->info("Sent {}",(char*)msg.body().data());
+        logger->info("Sent topic '{}' message {}",topic, (char*)msg.body().data());
 
         sock.send(std::move(msg),0);
 
