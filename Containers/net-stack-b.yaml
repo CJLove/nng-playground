@@ -27,6 +27,7 @@ items:
     kind: Deployment
     metadata:
       name: net-stack-b
+      namespace: nng
       labels:
         app: net-stack-b
     spec:

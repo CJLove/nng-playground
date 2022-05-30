@@ -15,6 +15,5 @@ data:
     sub-topics:
       - stack-b-egress
     pub-topics:
-      - stack-a-egress
-
-#      - stack-b-ingress
+      - stack-b-ingress
+    
