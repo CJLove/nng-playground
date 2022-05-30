@@ -11,6 +11,7 @@ ConvStack::ConvStack(const std::string &name, const std::string &pubEndpoint, co
 
 void ConvStack::onReceivedMessage(const std::string_view &topic, const std::string_view &msg) 
 {
+    //m_logger->info("{} receive message on topic {}",topic);
     std::lock_guard guard(m_mutex);
     std::string topicStr { topic };
     std::string msgStr { msg };

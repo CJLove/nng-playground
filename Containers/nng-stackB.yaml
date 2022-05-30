@@ -1,0 +1,50 @@
+
+---
+apiVersion: v1
+kind: List
+items:
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: nng-stack-b
+      namespace: nng
+      labels:
+        app: nng-stack-b
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: nng-stack-b
+      strategy:
+        type: RollingUpdate
+        rollingUpdate:
+          maxUnavailable: 50%
+          maxSurge: 1
+      template:
+        metadata:
+          labels:
+            app: nng-stack-b
+        spec:
+          volumes:
+            - name: nng-stack-b-cfg
+              configMap:
+                name: nng-stack-b-cfg
+
+          containers:
+          - name: nng-stack-b
+            image: fir.love.io:3005/nng-stack:latest
+            imagePullPolicy: Always
+            livenessProbe:
+              httpGet:
+                path: /healthz
+                port: 6000
+              initialDelaySeconds: 2
+              periodSeconds: 2
+            volumeMounts:
+              - mountPath: /nng-stack/config
+                name: nng-stack-b-cfg
+                readOnly: true
+          nodeSelector:
+            cputype: amd64
+
+

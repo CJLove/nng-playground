@@ -1,0 +1,6 @@
+---
+pub-endpoint: tcp://localhost:9000
+sub-endpoint: tcp://localhost:9001
+health-port: 6000
+log-level: 0
+

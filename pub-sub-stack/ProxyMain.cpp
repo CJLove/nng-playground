@@ -11,7 +11,6 @@
 #include <string>
 #include <thread>
 #include <unistd.h>
-#include <zmq.hpp>
 
 using namespace std;
 
@@ -56,8 +55,8 @@ int main(int argc, char *argv[]) {
     }
     auto logger = spdlog::stdout_logger_mt("nng");
     // Log format:
-    // 2022-05-07 20:27:55.585|zmq-proxy|3425239|I|XPUB Port 9200 XSUB Port 9210
-    logger->set_pattern("%Y-%m-%d %H:%M:%S.%e|zmq-proxy|%t|%L|%v");
+    // 2022-05-07 20:27:55.585|nng-proxy|3425239|I|XPUB Port 9200 XSUB Port 9210
+    logger->set_pattern("%Y-%m-%d %H:%M:%S.%e|nng-proxy|%t|%L|%v");
 
     std::ifstream ifs(configFile);
     if (ifs.good()) {

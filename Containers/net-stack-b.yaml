@@ -1,0 +1,86 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: net-stack-b-cfg
+  namespace: nng
+data:
+  net-stack.yaml: |
+    name: net-stack-b
+    id: cfb5feb0-ce4f-11ec-84fb-b88584a4a6fe
+    log-level: 0
+    health-port: 6000
+    pub-endpoint: tcp://nng-proxy-service:9000
+    sub-endpoint: tcp://nng-proxy-service:9001
+    sub-topics:
+      - net-stack-b-egress
+    pub-topics:
+      - net-stack-b-ingress
+    listen-port: 7001
+    dest-ip: fir.love.io
+    dest-port: 7101
+---
+apiVersion: v1
+kind: List
+items:
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: net-stack-b
+      labels:
+        app: net-stack-b
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: net-stack-b
+      strategy:
+        type: RollingUpdate
+        rollingUpdate:
+          maxUnavailable: 50%
+          maxSurge: 1
+      template:
+        metadata:
+          labels:
+            app: net-stack-b
+        spec:
+          volumes:
+            - name: net-stack-b-cfg
+              configMap:
+                name: net-stack-b-cfg
+
+          containers:
+          - name: net-stack-b
+            image: fir.love.io:3005/nng-net-stack:latest
+            imagePullPolicy: Always
+            livenessProbe:
+              httpGet:
+                path: /healthz
+                port: 6000
+              initialDelaySeconds: 2
+              periodSeconds: 2
+            volumeMounts:
+              - mountPath: /net-stack/config
+                name: net-stack-b-cfg
+                readOnly: true
+            ports:
+            - containerPort: 7000
+          nodeSelector:
+            cputype: amd64
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: net-stack-b-service
+  namespace: nng
+spec:
+  type: NodePort
+  ports:
+    - name: ingres
+      protocol: UDP
+      port: 7001
+      targetPort: 7001
+      nodePort: 30003
+  selector:
+    app: net-stack-b
+

@@ -1,0 +1,52 @@
+---
+apiVersion: v1
+kind: List
+items:
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: nng-proxy
+      namespace: nng
+      labels:
+        app: nng-proxy
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: nng-proxy
+      strategy:
+        type: RollingUpdate
+        rollingUpdate:
+          maxUnavailable: 50%
+          maxSurge: 1
+      template:
+        metadata:
+          labels:
+            app: nng-proxy
+        spec:
+          volumes:
+            - name: nng-proxy-cfg
+              configMap:
+                name: nng-proxy-cfg
+          containers:
+          - name: nng-proxy
+            image: fir.love.io:3005/nng-proxy:latest
+            imagePullPolicy: Always
+            livenessProbe:
+              httpGet:
+                path: /healthz
+                port: 6000
+              initialDelaySeconds: 2
+              periodSeconds: 2
+            volumeMounts:
+              - mountPath: /nng-proxy/config
+                name: nng-proxy-cfg
+                readOnly: true
+
+            ports:
+            - containerPort: 9000
+            - containerPort: 9001
+          nodeSelector:
+            cputype: amd64
+
+

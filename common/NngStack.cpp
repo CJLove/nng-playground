@@ -73,7 +73,7 @@ void NngStack::Stop()
 
 int NngStack::Health()
 {
-    // Subscriber count is incremented for each received message *or* timeout in zmq::poll(),
+    // Subscriber count is incremented for each received message *or* timeout in nnq::,
     // which minimally proves that the subscriber thread isn't wedged
     static uint32_t lastCount = 0;
     uint32_t count = m_subscriber.Count();

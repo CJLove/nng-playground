@@ -69,6 +69,7 @@ public:
                 }
             } catch (nng::exception &e) {
                 if (e.get_error() == nng::error::timedout) {
+                    m_count++;
                     continue;
                 }
             } catch (std::exception &e) {

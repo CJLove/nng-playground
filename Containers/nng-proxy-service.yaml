@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nng-proxy-service
+  namespace: nng
+spec:
+  type: ClusterIP
+  ports:
+    - name: pub
+      protocol: TCP
+      port: 9000
+    - name: sub
+      protocol: TCP
+      port: 9001
+  selector:
+    app: nng-proxy

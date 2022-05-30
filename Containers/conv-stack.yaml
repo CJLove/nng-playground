@@ -1,0 +1,49 @@
+---
+apiVersion: v1
+kind: List
+items:
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: conv-stack
+      namespace: nng
+      labels:
+        app: conv-stack
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: conv-stack
+      strategy:
+        type: RollingUpdate
+        rollingUpdate:
+          maxUnavailable: 50%
+          maxSurge: 1
+      template:
+        metadata:
+          labels:
+            app: conv-stack
+        spec:
+          volumes:
+            - name: conv-stack-cfg
+              configMap:
+                name: conv-stack-cfg
+
+          containers:
+          - name: conv-stack
+            image: fir.love.io:3005/nng-conv-stack:latest
+            imagePullPolicy: Always
+            livenessProbe:
+              httpGet:
+                path: /healthz
+                port: 6000
+              initialDelaySeconds: 2
+              periodSeconds: 2
+            volumeMounts:
+              - mountPath: /conv-stack/config
+                name: conv-stack-cfg
+                readOnly: true
+          nodeSelector:
+            cputype: amd64
+
+

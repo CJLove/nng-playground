@@ -1,0 +1,20 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nng-stack-b-cfg
+  namespace: nng
+data:
+  nng-stack.yaml: |
+    name: stackB
+    id: cfb5feb0-ce4f-11ec-84fb-b88584a4a6ff
+    log-level: 0
+    health-port: 6000
+    pub-endpoint: tcp://nng-proxy-service:9000
+    sub-endpoint: tcp://nng-proxy-service:9001
+    sub-topics:
+      - stack-b-egress
+    pub-topics:
+      - stack-a-egress
+
+#      - stack-b-ingress

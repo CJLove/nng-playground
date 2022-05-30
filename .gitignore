@@ -1,5 +1,12 @@
 build
 
+Containers/nng-proxy/nng-proxy
+Containers/nng-stack/nng-stack
+Containers/nng-conv-stack/conv-stack
+Containers/nng-net-stack/net-stack
+
+bin/*
+
 # Prerequisites
 *.d
 

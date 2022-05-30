@@ -1,0 +1,24 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: conv-stack-cfg
+  namespace: nng
+data:
+  conv-stack.yaml: |
+    name: conv-stack
+    id: cfb5feb0-ce4f-11ec-84fb-b88584a4a6fe
+    log-level: 0
+    health-port: 6000
+    pub-endpoint: tcp://nng-proxy-service:9000
+    sub-endpoint: tcp://nng-proxy-service:9001
+    sub-topics:
+      - stack-a-ingress
+      - stack-b-ingress
+      - net-stack-a-ingress
+      - net-stack-b-ingress
+    conversions:
+      stack-a-ingress: stack-b-egress
+      stack-b-ingress: stack-a-egress
+      net-stack-a-ingress: net-stack-b-egress
+      net-stack-b-ingress: net-stack-a-egress
