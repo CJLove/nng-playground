@@ -8,21 +8,12 @@
 #include "yaml-cpp/yaml.h"
 #include "ConvStack.h"
 #include "HealthStatus.h"
+#include "Util.h"
 
 void usage() 
 {
     std::cerr << "Usage:\n"
         << "conv-stack -n <name> -p <pubEndpoint> -s <subEndpoint> -S <sub topic> -P <subTopic:conversions>\n";
-}
-
-std::vector<std::string> split(const std::string &str, const char delim) {
-    std::vector<std::string> strings;
-    std::istringstream stream(str);
-    std::string s;
-    while (std::getline(stream, s, delim)) {
-        strings.push_back(s);
-    }
-    return strings;
 }
 
 int main(int argc, char **argv)
