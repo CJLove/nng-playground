@@ -6,7 +6,7 @@ metadata:
   namespace: nng
 data:
   nng-proxy.yaml: |
-    pub-endpoint: tcp://localhost:9000
-    sub-endpoint: tcp://localhost:9001
+    pub-endpoint: tcp://0.0.0.0:9000
+    sub-endpoint: tcp://0.0.0.0:9001
     health-port: 6000
     log-level: 0
