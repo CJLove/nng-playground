@@ -18,7 +18,7 @@ data:
       - net-stack-a-ingress
     listen-port: 7000
     dest-ip: fir.love.io
-    dest-port: 7100
+    dest-port: 7102
 ---
 apiVersion: v1
 kind: List
