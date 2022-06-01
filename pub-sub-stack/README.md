@@ -18,3 +18,10 @@ Stacks are comprised of NNG `pub0` and `sub0` sockets and can be configured to s
 - Executable with a single NngStack instance
 - Listens on a specific UDP port for external messages and publishes them to one or more topics
 - Sends messages received on subscribed topic(s) to an external UDP IP/port
+
+## inproc-stack
+- executable with:
+   - 4 NngStack instances all using 'inproc' transport,
+   - 2 NetStack instances listening on UDP ports 6000 and 6001, sending to ports 7000 and 7001
+   - a ConvStack routing messages between the NetStack instances. 
+- Supports interactive loop for accepting messages to be published by 1 stack to specific topics

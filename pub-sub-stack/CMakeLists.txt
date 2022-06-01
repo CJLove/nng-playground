@@ -22,8 +22,8 @@ target_link_libraries( nng-proxy nng Threads::Threads yaml-cpp httplib::httplib)
 add_executable(net-stack NetStack.cpp NetStackMain.cpp)
 target_link_libraries( net-stack nng common Threads::Threads yaml-cpp httplib::httplib)
 
-#add_executable(inproc-stack NngStack.cpp Publisher.cpp Proxy.cpp InprocStackMain.cpp)
-#target_link_libraries( inproc-stack nng common Threads::Threads )
+add_executable(inproc-stack NetStack.cpp ConvStack.cpp Proxy.cpp InprocStackMain.cpp)
+target_link_libraries( inproc-stack nng common Threads::Threads )
 
 
 
