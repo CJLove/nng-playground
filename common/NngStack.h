@@ -15,9 +15,9 @@ public:
 
     virtual ~NngStack();
 
-    virtual void onReceivedMessage(const std::string_view &topic, const std::string_view &msg);
+    virtual void onReceivedMessage(const std::string &topic, const PubSubMessage &msg);
 
-    virtual void onCtrlMessage(const std::string_view &msg);
+    virtual void onCtrlMessage(const PubSubMessage &msg);
 
     void Subscribe(const std::string &topic);
 

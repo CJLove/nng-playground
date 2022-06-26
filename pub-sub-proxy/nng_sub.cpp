@@ -9,6 +9,33 @@
 
 using namespace std;
 
+struct PubSubMessage {
+    const char *m_topic;
+    const char *m_msg;
+    size_t m_topicSize;
+    size_t m_msgSize;
+
+    PubSubMessage(): m_topic(nullptr), m_msg(nullptr),m_topicSize(0), m_msgSize(0)
+    {
+
+    }
+
+    bool populate(const char sep, nng::msg &msg)
+    {
+        for (size_t i = 0; i < msg.body().size(); i++) {
+            if (msg.body().data<char>()[i] == sep) {
+                m_topic = msg.body().data<char>();
+                m_topicSize = i;
+                m_msg = &msg.body().data<char>()[i+1];
+                m_msgSize = msg.body().size() - (m_topicSize + 1);
+                return true;
+            }
+        }
+        return false;
+    }
+
+};
+
 void usage() {
     std::cerr << "Usage\n"
               << "nng_sub [-l <logLevel>][-t <Topic>][-s <endpoint>]\n";
@@ -65,11 +92,12 @@ int main(int argc, char**argv)
     const std::string sep ="|";
 
     while (true) {
-        auto msg = sock.recv_msg();
-        std::string_view view((char*)msg.body().data(), msg.body().size());
-        auto pos = view.find(sep);
-        if (pos != std::string::npos) {
-            logger->info("Received topic '{}' message {}",view.substr(0,pos),view.substr(pos+1));
+        auto nngMsg = sock.recv_msg();
+        PubSubMessage msg;
+        if (msg.populate('|',nngMsg)) {
+            std::string topic { msg.m_topic, msg.m_topicSize };
+            std::string data { msg.m_msg, msg.m_msgSize };
+            logger->info("Received topic '{}' message {}",topic,data);
         }
 
     }

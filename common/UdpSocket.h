@@ -3,9 +3,13 @@
 #include <cstdint>
 #include <fmt/core.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include <string>
 #include <sys/socket.h>
 #include <thread>
+#include <netdb.h>
+#include <unistd.h>
+
 
 constexpr size_t MAX_PACKET_SIZE = 65535;
 
@@ -80,6 +84,12 @@ public:
             ret.m_msg = fmt::format("Error: setsockopt(SO_RCVBUF) failed: errno {}", errno);
             return ret;
         }
+        option_value = TX_BUFFER_SIZE;
+        if (setsockopt(m_fd, SOL_SOCKET, SO_SNDBUF, reinterpret_cast<char *>(&option_value), sizeof(option_value)) < 0) {
+            ret.m_success = false;
+            ret.m_msg = fmt::format("Error: setsockopt(SO_SNDBUF) failed: errno {}", errno);
+            return ret;
+        }        
     }
 
     /**

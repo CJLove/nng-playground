@@ -9,29 +9,29 @@ ConvStack::ConvStack(const std::string &name, const std::string &pubEndpoint, co
 
 }
 
-void ConvStack::onReceivedMessage(const std::string_view &topic, const std::string_view &msg) 
+void ConvStack::onReceivedMessage(const std::string &topic, const PubSubMessage &msg) 
 {
     //m_logger->info("{} receive message on topic {}",topic);
-    std::lock_guard guard(m_mutex);
-    std::string topicStr { topic };
-    std::string msgStr { msg };
-    auto f = m_conversionMap.find(topicStr);
+    std::lock_guard<std::mutex> guard(m_mutex);
+    std::string msgStr { msg.m_msg, msg.m_msgSize };
+    auto f = m_conversionMap.find(topic);
     if (f != m_conversionMap.end()) {
-        auto topics = m_conversionMap[topicStr];
+        auto topics = m_conversionMap[topic];
         Publish(topics,msgStr);
         m_logger->info("{} receive message on topic {} publishing to {}", m_name, topic, fmt::join(topics," "));
     }
     m_rxMessages++;
 }
 
-void ConvStack::onCtrlMessage(const std::string_view &msg)
+void ConvStack::onCtrlMessage(const PubSubMessage &msg)
 {
-    m_logger->info("Received ctrl message {}", msg);
+    std::string data { msg.m_msg, msg.m_msgSize };
+    m_logger->info("Received ctrl message {}", data);
 }
 
 void ConvStack::AddConversion(const std::string &subTopic, std::vector<std::string> &pubTopics)
 {
-    std::lock_guard guard(m_mutex);
+    std::lock_guard<std::mutex> guard(m_mutex);
     Subscribe(subTopic);
     m_conversionMap[subTopic] = pubTopics;
 
@@ -39,7 +39,7 @@ void ConvStack::AddConversion(const std::string &subTopic, std::vector<std::stri
 
 void ConvStack::RemoveConversion(const std::string &subTopic)
 {
-    std::lock_guard guard(m_mutex);
+    std::lock_guard<std::mutex> guard(m_mutex);
     Unsubscribe(subTopic);
     m_conversionMap.erase(subTopic);
 }

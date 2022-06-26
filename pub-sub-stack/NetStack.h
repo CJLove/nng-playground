@@ -11,9 +11,9 @@ public:
 
     virtual ~NetStack();
 
-    virtual void onReceivedMessage(const std::string_view &topic, const std::string_view &msg) override;
+    virtual void onReceivedMessage(const std::string &topic, const PubSubMessage &msg) override;
 
-    virtual void onCtrlMessage(const std::string_view &msg) override;
+    virtual void onCtrlMessage(const PubSubMessage &msg) override;
 
     int Health();
 

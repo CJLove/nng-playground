@@ -19,15 +19,17 @@ NngStack::~NngStack()
     Stop();
 }
 
-void NngStack::onReceivedMessage(const std::string_view &topic, const std::string_view &msg)
+void NngStack::onReceivedMessage(const std::string &topic, const PubSubMessage &msg)
 {
-    m_logger->info("Received message {} on topic {}", msg, topic);
+    std::string data(msg.m_msg, msg.m_msgSize);
+    m_logger->info("Received message {} on topic {}", data, topic);
     m_rxMessages++;
 }
 
-void NngStack::onCtrlMessage(const std::string_view &msg)
+void NngStack::onCtrlMessage(const PubSubMessage &msg)
 {
-    m_logger->info("Received ctrl message {} ", msg);
+    std::string data(msg.m_msg, msg.m_msgSize);
+    m_logger->info("Received ctrl message {} ", data);
 
     // See if CTRL message is addressed to this node then process it
 }

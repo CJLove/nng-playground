@@ -7,6 +7,33 @@
 #include <spdlog/spdlog.h>
 #include <thread>
 
+struct PubSubMessage {
+    const char *m_topic;
+    const char *m_msg;
+    size_t m_topicSize;
+    size_t m_msgSize;
+
+    PubSubMessage(): m_topic(nullptr), m_msg(nullptr),m_topicSize(0), m_msgSize(0)
+    {
+
+    }
+
+    bool populate(const char sep, nng::msg &msg)
+    {
+        for (size_t i = 0; i < msg.body().size(); i++) {
+            if (msg.body().data<char>()[i] == sep) {
+                m_topic = msg.body().data<char>();
+                m_topicSize = i;
+                m_msg = &msg.body().data<char>()[i+1];
+                m_msgSize = msg.body().size() - (m_topicSize + 1);
+                return true;
+            }
+        }
+        return false;
+    }
+
+};
+
 template <class T>
 class Subscriber {
 public:
@@ -35,7 +62,7 @@ public:
 
     void Run() {
         const std::string CTRL_TOPIC = std::string("ctrl");
-        const std::string sep = "|";
+        const char sep = '|';
         try {
             m_logger->info("Subscriber Connecting to {}", m_endpoint);
 
@@ -54,16 +81,14 @@ public:
 
         while (!m_shutdown) {
             try {
-                auto msg = m_socket.recv_msg();
-                std::string_view view((char *)msg.body().data(), msg.body().size());
-                auto pos = view.find(sep);
-                if (pos != std::string::npos) {
-                    auto topic = view.substr(0, pos);
-                    auto data = view.substr(pos + 1);
+                nng::msg nngMsg = m_socket.recv_msg();
+                PubSubMessage msg;
+                if (msg.populate(sep, nngMsg)) {
+                    const std::string topic(msg.m_topic, msg.m_topicSize);
                     if (topic == CTRL_TOPIC) {
-                        m_target.onCtrlMessage(data);
+                        m_target.onCtrlMessage(msg);
                     } else {
-                        m_target.onReceivedMessage(topic,data);
+                        m_target.onReceivedMessage(topic, msg);
                     }
                     m_count++;
                 }

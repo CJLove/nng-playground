@@ -25,6 +25,8 @@ target_link_libraries( net-stack nng common Threads::Threads yaml-cpp httplib::h
 add_executable(inproc-stack NetStack.cpp ConvStack.cpp Proxy.cpp InprocStackMain.cpp)
 target_link_libraries( inproc-stack nng common Threads::Threads )
 
+add_executable(udp-driver UdpDriver.cpp)
+target_link_libraries(udp-driver common nng Threads::Threads)
 
 
 
@@ -33,4 +35,5 @@ install(TARGETS nng-stack DESTINATION bin)
 install(TARGETS nng-proxy DESTINATION bin)
 install(TARGETS conv-stack DESTINATION bin)
 install(TARGETS net-stack DESTINATION bin)
+install(TARGETS udp-driver DESTINATION bin)
 # install(TARGETS inproc-stack DESTINATION bin)

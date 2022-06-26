@@ -26,16 +26,18 @@ NetStack::~NetStack()
 
 }
 
-void NetStack::onReceivedMessage(const std::string_view &topic, const std::string_view &msg)
+void NetStack::onReceivedMessage(const std::string &topic, const PubSubMessage &msg)
 {
-    m_logger->info("Received message {} on topic {}", msg, topic);
+    std::string data { msg.m_msg, msg.m_msgSize };
+    m_logger->info("Received message {} on topic {}", data, topic);
     m_rxMessages++;
-    m_socket.sendMsg(reinterpret_cast<const unsigned char*>(&msg[0]),msg.size());
+    m_socket.sendMsg(reinterpret_cast<const unsigned char*>(msg.m_msg),msg.m_msgSize);
 }
 
-void NetStack::onCtrlMessage(const std::string_view &msg)
+void NetStack::onCtrlMessage(const PubSubMessage &msg)
 {
-    m_logger->info("Received ctrl message {}", msg);    
+    std::string data { msg.m_msg, msg.m_msgSize };
+    m_logger->info("Received ctrl message {}", data);    
 }
 
 void NetStack::onReceiveData(const  char *data, size_t size)
